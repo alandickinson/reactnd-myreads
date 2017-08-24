@@ -31,7 +31,7 @@ class BooksApp extends Component {
               </div>
               <div className="list-books-content">
                 <BookList books={this.state.currentBooks} title='Currently Reading'/>
-                <BookList books={this.state.wantedBooks} title='Wanted Books'/>
+                <BookList books={this.state.wantedBooks} title='Want To Read'/>
                 <BookList books={this.state.finishedBooks} title='Read'/>
               </div>
             </div>
