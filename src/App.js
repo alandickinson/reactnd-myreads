@@ -7,20 +7,30 @@ import './App.css'
 
 class BooksApp extends Component {
   state = {
-    currentBooks: [],
-    wantedBooks: [],
-    finishedBooks: []
+    books: []
   }
+
   componentDidMount() {
     BooksAPI.getAll().then((books) => {
       this.setState({
-        currentBooks: books.filter((b) => b.shelf === 'currentlyReading'),
-        wantedBooks: books.filter((b) => b.shelf === 'wantToRead'),
-        finishedBooks: books.filter((b) => b.shelf === 'read')
+        books: books
       })
     })
   }
+
+  updateBook(selectedBook, newShelf) {
+    BooksAPI.update(selectedBook, newShelf).then(() => {
+      selectedBook.shelf = newShelf
+      this.setState((prevState) => ({
+        books: prevState.books.filter(b => b.id !== selectedBook.id).concat([selectedBook])
+      }))
+    })
+  }
+
   render() {
+
+    const onUpdateFunc = (selectedBook, newShelf) => this.updateBook(selectedBook, newShelf)
+
     return (
       <div className='app'>
         <Route exact path='/' render={() => (
@@ -30,9 +40,21 @@ class BooksApp extends Component {
                 <h1>MyReads</h1>
               </div>
               <div className="list-books-content">
-                <BookList books={this.state.currentBooks} title='Currently Reading'/>
-                <BookList books={this.state.wantedBooks} title='Want To Read'/>
-                <BookList books={this.state.finishedBooks} title='Read'/>
+                <BookList
+                  title='Currently Reading'
+                  books={this.state.books.filter((b) => b.shelf === 'currentlyReading')}
+                  onUpdate={onUpdateFunc}
+                />
+                <BookList
+                  title='Want To Read'
+                  books={this.state.books.filter((b) => b.shelf === 'wantToRead')}
+                  onUpdate={onUpdateFunc}
+                />
+                <BookList
+                  title='Read'
+                  books={this.state.books.filter((b) => b.shelf === 'read')}
+                  onUpdate={onUpdateFunc}
+                />
               </div>
             </div>
             <div className="open-search">
@@ -40,7 +62,9 @@ class BooksApp extends Component {
             </div>
           </div>
         )}/>
-        <Route path='/search' component={SearchPage}/>
+        <Route path='/search' render={() => (
+          <SearchPage onUpdate={onUpdateFunc} booksOnShelf={this.state.books}/>
+        )}/>
       </div>
     )
   }
