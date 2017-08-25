@@ -9,6 +9,9 @@ class BookList extends Component {
     title: PropTypes.string
   }
   render() {
+
+    // console.log(this.props.books)
+
     return (
       <div className="bookshelf">
         {this.props.title && (

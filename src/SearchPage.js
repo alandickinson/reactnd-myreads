@@ -24,15 +24,19 @@ class SearchPage extends React.Component {
   updateResults = debounce(() => {
     if (this.state.query) {
       BooksAPI.search(this.state.query.trim(), 20).then((books) => {
-        for(let i=0; i<books.length;i++) {
-          for(let j=0; j<this.props.booksOnShelf.length;j++) {
-            if (books[i].id === this.props.booksOnShelf[j].id) {
-              books[i].shelf = this.props.booksOnShelf[j].shelf
+        if (books.error) {
+          this.setState({searchResults: []})
+        } else {
+          for(let i=0; i<books.length;i++) {
+            for(let j=0; j<this.props.booksOnShelf.length;j++) {
+              if (books[i].id === this.props.booksOnShelf[j].id) {
+                books[i].shelf = this.props.booksOnShelf[j].shelf
+              }
             }
           }
+          this.setState({searchResults: books})
         }
-        this.setState({searchResults: books})
-      })
+      }).catch((err) => console.log(err));
     } else {
       this.setState({searchResults: []})
     }
